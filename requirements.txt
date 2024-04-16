@@ -1,1 +1,4 @@
 requests==2.31.0
+flet==0.21.2
+psutil==5.9.8
+python-dotenv==1.0.1
