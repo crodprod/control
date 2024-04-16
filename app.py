@@ -873,7 +873,11 @@ def main(page: ft.Page):
                                      icon=ft.icons.KEYBOARD_ARROW_RIGHT_ROUNDED)
     login_col = ft.Column(
         controls=[
-            ft.Text("Control", size=30, weight=ft.FontWeight.W_700),
+            ft.Image(
+                src='icons/loading-animation.png',
+                height=200
+            ),
+            # ft.Text("Control", size=30, weight=ft.FontWeight.W_700),
             login_field,
             button_login
         ],
