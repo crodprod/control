@@ -1,5 +1,6 @@
 import logging
 import math
+import socket
 import subprocess
 import time
 
@@ -19,13 +20,6 @@ os.chdir(script_directory)
 project_folder = os.getcwd()
 load_dotenv()
 
-logging.basicConfig(level=logging.INFO,
-                    filename=f"logs/{datetime.now().strftime('%d-%m-%Y-%H-%M')}.log",
-                    filemode="w",
-                    format="%(asctime)s %(levelname)s %(message)s",
-                    encoding='utf-8'
-                    )
-
 config = functions.load_config_file('config.json')
 control_data = config['control']
 paths_data = config['paths']
@@ -39,6 +33,11 @@ url_base = control_data['base_url'].format(control_data['host'], control_data['p
 # Выключение Resolume
 # Оптимизация кода (?)
 # Перенос текста в отдельный файл
+
+def is_port_in_use(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(('localhost', port)) == 0
+
 
 def is_running(process_name: str):
     # Проверка наличия процесса в диспетчере задач
@@ -207,18 +206,17 @@ def main(page: ft.Page):
         else:
             logging.info(f"Процесс {exe_name}.exe не обнаружен")
             if exe_name == 'Arena':
-                page.dialog = dialog_resolume_start_menu
-                dialog_resolume_start_menu.open = True
-                page.update()
+                open_dialog(dialog_resolume_start_menu)
 
     def login():
         true_password = os.getenv('PANEL_PASSWORD')
-        print(true_password)
         if login_field.value == true_password:
             open_loading_sb()
             load_exe('Arena')
         else:
             open_sb("Неверный код")
+        login_field.value = ""
+        page.update()
 
     def logout():
         login_field.value = ""
@@ -468,11 +466,11 @@ def main(page: ft.Page):
         close_dialog(dialog_loading)
         if api_response.status_code == 204:
             logging.info(f'[{open_clip.__name__}] Новый элемент открыт: {file}')
-            open_sb(f"Элемент {make_text_smaller(file)} загружен", ft.colors.GREEN)
+            open_sb(f"Элемент загружен", ft.colors.GREEN)
             edit_control_card(layer_index, make_text_smaller(file), ft.colors.GREEN)
         else:
             logging.error(f'[{open_clip.__name__}] Ошибка при подключении к элементу: {api_response.text}')
-            open_sb("Ошибка при подключении к элементу", ft.colors.RED_ACCENT_200)
+            open_sb("Ошибка доступа", ft.colors.RED_ACCENT_200)
             send_error_message(
                 location=open_clip.__name__,
                 error_text=f"Ошибка при подключении к элементу: {api_response.text}",
@@ -488,7 +486,7 @@ def main(page: ft.Page):
                 api_response = make_request('POST', url, headers=get_headers("application/json"))
                 if api_response.status_code != 204:
                     close_dialog(dialog_loading)
-                    open_sb("Ошибка при скрытии слоя", ft.colors.RED_ACCENT_200)
+                    open_sb("Ошибка слоя", ft.colors.RED_ACCENT_200)
                     logging.error(f"[{power_off.__name__}] Ошибка при скрытии слоя")
                     logging.error(f"[{power_off.__name__}] URL: {url}")
                     send_error_message(
@@ -642,8 +640,7 @@ def main(page: ft.Page):
                     ),
                     height=400,
                 )
-                page.dialog = dialog_edit
-                dialog_edit.open = True
+                open_dialog(dialog_edit)
             page.update()
 
         elif action == 'stop':
@@ -892,22 +889,32 @@ def main(page: ft.Page):
         alignment=ft.MainAxisAlignment.START
     )
 
+    if os.getenv('FLET_SECRET_KEY') is None:
+        os.environ["FLET_SECRET_KEY"] = os.urandom(12).hex()
+
     change_screen('login')
     page.update()
 
 
 if __name__ == "__main__":
-    if not is_running('ngrok'):
-        subprocess.Popen(
-            fr"ngrok.exe http 8502 --domain={os.getenv('NGROK_DOMAIN')}",
-            creationflags=subprocess.CREATE_NEW_CONSOLE
+    if not is_port_in_use(8502):
+        logging.basicConfig(level=logging.INFO,
+                            # filename=f"logs/{datetime.now().strftime('%d-%m-%Y-%H-%M')}.log",
+                            # filemode="w",
+                            format="%(asctime)s %(levelname)s %(message)s",
+                            encoding='utf-8'
+                            )
+        if not is_running('ngrok'):
+            subprocess.Popen(
+                fr"ngrok.exe http 8502 --domain={os.getenv('NGROK_DOMAIN')}",
+                creationflags=subprocess.CREATE_NEW_CONSOLE
+            )
+            send_error_message(location="Запуск Ngrok", error_text="Модуль запущен")
+        send_error_message(location="Запуск CROD.Control", error_text="Модуль запущен")
+        ft.app(
+            target=main,
+            view=ft.AppView.WEB_BROWSER,
+            assets_dir='assets',
+            upload_dir='assets/uploads',
+            port=8502,
         )
-        send_error_message(location="Запуск Ngrok", error_text="Модуль запущен")
-    send_error_message(location="Запуск CROD.Control", error_text="Модуль запущен")
-    ft.app(
-        target=main,
-        view=ft.AppView.FLET_APP_WEB,
-        assets_dir='assets',
-        upload_dir='assets/uploads',
-        port=8502,
-    )
