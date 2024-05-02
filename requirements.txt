@@ -2,3 +2,5 @@ requests==2.31.0
 flet==0.21.2
 psutil==5.9.8
 python-dotenv==1.0.1
+opencv-python==4.9.0.80
+transliterate==1.10.2

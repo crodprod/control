@@ -12,5 +12,27 @@
   },
   "paths": {
     "arena": "C:/Program Files/Resolume Arena/Arena.exe"
+  },
+  "projectors": {
+    "base_url": "http://{0}/api/v01",
+    "devices": [
+    {
+      "ip_address": "192.168.0.200",
+      "name": "Столовая"
+    },
+    {
+      "ip_address": "192.168.0.201",
+      "name": "Серверная"
+    },
+    {
+      "ip_address": "192.168.0.202",
+      "name": "Сцена"
+    },
+    {
+      "ip_address": "192.168.0.203",
+      "name": "Вход"
+    }
+  ]
+
   }
 }
