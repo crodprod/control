@@ -2,6 +2,7 @@ import datetime
 import json
 import logging
 import os
+import platform
 import subprocess
 import time
 
@@ -54,8 +55,7 @@ def is_running(process_name: str):
 
 def main(page: ft.Page):
     page.title = "Control"
-    page.window_width = 377
-    page.window_height = 768
+    page.padding = 0
 
     page.client_storage.clear()
     page.theme = ft.Theme(
@@ -69,7 +69,12 @@ def main(page: ft.Page):
     }
     page.theme_mode = ft.ThemeMode.DARK
 
+    if platform.system() == "Windows":
+        page.window_width = 377
+        page.window_height = 768
+
     appbar = ft.AppBar(
+        title=ft.Text("Control", size=20, weight=ft.FontWeight.W_400),
         actions=[
             ft.Container(
                 ft.Row(
@@ -495,7 +500,7 @@ def main(page: ft.Page):
                                 padding=15
 
                             ),
-                            elevation=10
+                            elevation=5
                         )
                     )
                 page.controls.append(layers_col)
@@ -571,7 +576,7 @@ def main(page: ft.Page):
                                 padding=15
 
                             ),
-                            elevation=10
+                            elevation=5
                         )
                     )
                 page.controls.append(col)
@@ -626,7 +631,7 @@ def main(page: ft.Page):
                                 padding=15
 
                             ),
-                            elevation=10
+                            elevation=5
                         )
                     )
                 page.controls.append(col)
@@ -677,7 +682,7 @@ def main(page: ft.Page):
                                 padding=15
 
                             ),
-                            elevation=10
+                            elevation=5
                         )
                     )
                 page.controls.append(layers_col)
@@ -857,7 +862,7 @@ def main(page: ft.Page):
             ],
             alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            width=600,
+            width=400,
             height=50
         )
     )
