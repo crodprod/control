@@ -21,6 +21,7 @@ script_path = os.path.abspath(__file__)
 script_directory = os.path.dirname(script_path)
 os.chdir(script_directory)
 project_folder = os.getcwd()
+
 load_dotenv()
 
 config = functions.load_config_file('config.json')
