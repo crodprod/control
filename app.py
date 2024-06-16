@@ -22,7 +22,11 @@ script_directory = os.path.dirname(script_path)
 os.chdir(script_directory)
 project_folder = os.getcwd()
 
-load_dotenv()
+if platform.system() == "Windows":
+    env_path = r"D:\CROD_MEDIA\.env"
+else:
+    env_path = r"/root/crod/.env"
+load_dotenv(dotenv_path=env_path)
 
 config = functions.load_config_file('config.json')
 control_data = config['control']
@@ -971,6 +975,10 @@ if __name__ == "__main__":
                             encoding='utf-8'
                             )
         if not is_running('ngrok'):
+            subprocess.Popen(
+                fr"ngrok.exe http 8502 --domain={os.getenv('NGROK_DOMAIN')}",
+                creationflags=subprocess.CREATE_NEW_CONSOLE
+            )
             subprocess.Popen(
                 fr"ngrok.exe http 8502 --domain={os.getenv('NGROK_DOMAIN')}",
                 creationflags=subprocess.CREATE_NEW_CONSOLE

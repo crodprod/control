@@ -2,7 +2,7 @@
   "control": {
     "start_time": 23,
     "base_url": "http://{0}:{1}/api/v1/composition",
-    "host": "192.168.0.108",
+    "host": "192.168.0.107",
     "port": "8080",
     "request_headers": {
       "Content-Type": "",
